@@ -1,0 +1,203 @@
+---
+title: "Assignment-1 Fall 2018"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+## Exploratory Data Analysis of Olympic Games with Pandas 
+
+### Import Required Libraries
+
+```{r}
+library(dplyr)
+```
+
+### Import Dataset
+
+```{r}
+data <- read.csv("athlete_events.csv")
+head(data)
+```
+
+
+
+```{r}
+print(ncol(data))
+```
+
+Total number of features or columns in the dataset are 15.
+
+
+```{r}
+print(nrow(data))
+```
+
+Total number of samples or rows in the dataset are 271116.
+
+```{r}
+colnames(data)
+```
+
+List down all the columns or features in the dataset.
+
+```{r}
+glimpse(data)
+```
+
+Glimpse of the data.
+
+
+### Questions
+
+#### 1. How old were the youngest male and female participants of the 1996 Olympics?
+
+```{r}
+year_1996 <- filter(data, Year == 1996)
+year_1996_male <- filter(year_1996, Sex == "M")
+year_1996_female <- filter(year_1996, Sex == "F")
+year_1996_male_young <- min(year_1996_male$Age, na.rm = T)
+year_1996_female_young <- min(year_1996_female$Age, na.rm = T)
+print(year_1996_male_young)
+print(year_1996_female_young)
+```
+
+*Result :* Youngest 1996 male pparticipant is 14 years old and youngest 1996 female participant is 12 years old.
+
+
+#### 2. What was the percentage of male gymnasts among all the male participants of the 2000 Olympics? Round the answer to the first decimal.
+
+```{r}
+year_2000 =  filter(data, Year == 2000)
+year_2000_male = filter(year_2000, Sex == "M")
+year_2000_male_unique <- year_2000_male[!duplicated(year_2000_male$Name),]
+male_unique <- nrow(year_2000_male_unique)
+print(male_unique)
+```
+
+```{r}
+
+male_gymnastics <- filter(year_2000_male_unique, Sport == "Gymnastics")
+gymnastics_unique <- nrow(male_gymnastics)
+print(gymnastics_unique)
+```
+
+
+
+```{r}
+print(round(gymnastics_unique/male_unique * 100, digit=1))
+```
+
+*Result :* The percentage change is 1.5
+
+#### 3. What are the mean and standard deviation of height for female basketball players participated in the 2000 Olympics? Round the answer to the first decimal.
+
+```{r}
+year_2000_female_basketball <- filter(data, Year == 2000, Sex == "F", Sport == "Basketball")
+print(round(mean(year_2000_female_basketball$Height), digits = 1))
+print(round(sd(year_2000_female_basketball$Height), digits = 1))
+```
+
+*Result :* The mean is 182.4 and standard deviation is 9.1
+
+
+#### 4. Find a sportsperson participated in the 2002 Olympics, with the highest weight among other participants of the same Olympics. What sport did he or she do?
+
+```{r}
+year_2002 <- filter(data, Year == 2002)
+year_2002_highest_weight <- max(year_2002$Weight, na.rm = T)
+sportsmen <- filter(year_2002, Weight == year_2002_highest_weight)
+print(sportsmen$Sport)
+```
+
+*Result :* Sports is Bobsleigh
+
+#### 5. How many times did Pawe Abratkiewicz participate in the Olympics held in different years?
+
+```{r}
+pawe <- filter(data, Name == "Pawe Abratkiewicz")
+pawe %>%
+  group_by(Year) %>%
+  summarise(n())
+```
+
+*Result :* Participated in 3 different years i.e. 1992, 1998, and 2002. Each year 2 times.
+
+
+#### 6. How many silver medals in tennis did Australia win at the 2000 Olympics?
+
+```{r}
+year_2000_tennis_aust_silver <- filter(data, Year == 2000, Sport == "Tennis", Team == "Australia", Medal == "Silver")
+print(nrow(year_2000_tennis_aust_silver))
+```
+
+*Result :* Win 2 silver medals
+
+
+#### 7. Is it true that Switzerland won fewer medals than Serbia at the 2016 Olympics? Do not consider NaN values in Medal column.
+
+```{r}
+year_2016_swit <- filter(data, Year == 2016, Team == "Switzerland")
+year_2016_swit %>%
+  group_by(Medal) %>%
+  summarise(n()) 
+```
+
+Total medals won by Switzerland are 11.
+
+```{r}
+year_2016_serb <- filter(data, Year == 2016, Team == "Serbia")
+year_2016_serb %>%
+  group_by(Medal) %>%
+  summarise(n())
+```
+
+Total medals won by Serbia are 54.
+
+*Result :* Yes Switzerland won fewer medals than Serbia.
+
+
+#### 8. What age category did the fewest and the most participants of the 2014 Olympics belong to?
+
+```{r}
+year_2014 <- filter(data, Year == 2014)
+year_2014 %>%
+  group_by(Age) %>%
+  summarise(n())
+```
+
+*Result :* Fewest [45-55] and most [25-35]
+
+#### 9. Is it true that there were Summer Olympics held in Lake Placid? Is it true that there were Winter Olympics held in Sankt Moritz?
+
+```{r}
+summer <- filter(data, Season == "Summer")
+winter <- filter(data, Season == "Winter")
+summer %>%
+  select(City) %>%
+  filter(City == "Lake Placid")
+```
+
+```{r}
+winter %>%
+  select(City) %>%
+  filter(City == "Sankt Moritz")
+```
+
+*Result :* No, Yes
+
+#### 10. What is the absolute difference between the number of unique sports at the 1995 Olympics and 2016 Olympics?
+
+```{r}
+year_1995 <- filter(data, Year == 1995)
+year_2016 <- filter(data, Year == 2016)
+year_2016_sport <- year_2016 %>%
+  group_by(Sport) %>%
+  summarise(n_distinct(Sport))
+print(nrow(year_2016_sport))
+```
+
+*Result :* There is no sports played in 1995. So the difference is equal to the sports played in 2016 i.e. 34
+
+
+#### Thank You.
